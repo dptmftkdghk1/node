@@ -12,8 +12,8 @@ dotenv.config(); //process.env에 .env파일 내용 읽어서 설정
 //dotenv의 패키지 이름이 dot(점) + env
 const pageRouter = require('./routes/page'); //pageRouter을 ./routes/page로 요청함.
 const authRouter = require('./routes/auth');  //authRouter을 ./routes/auth로 요청함.
-const { sequelize } = require('./models'); 
-const passportConfig = require('./passport');  
+const { sequelize } = require('./models');  //비구조화 할당으로 sequelize만 반환.
+const passportConfig = require('./passport');  // passport 폴더의 index.js를 임포트
 
 const app = express(); //express모듈을 실행해 qpp변수에 할당. 익스프레스 내부에 http 모듈이 내장되어 있으므로 서버의 역할을 할 수 있음.
 passportConfig(); // 패스포트 설정
@@ -29,11 +29,12 @@ nunjucks.configure('views', { //configure의 첫번째 인수로 views 폴더의
   express: app, //express속성에 app 객체를 연결
   watch: true,  //watch옵션이 true => HTML 파일이 변경될 때 템플릿 엔진을 다시 렌더링.
 });
-sequelize.sync({ force: false })
-  .then(() => {
-    console.log('데이터베이스 연결 성공');
+sequelize.sync({ force: false }) //db.sequelize를 불러와서 sync 메서드를 사용해 서버 실행시 MYSQL과 연동.
+//force:false 옵션 => true로 설정하면 서버 실행시마다 테이블 재생성.  
+  .then(() => { //프로미스로 처리
+    console.log('데이터베이스 연결 성공'); //DB연결 성공
   })
-  .catch((err) => {
+  .catch((err) => { //err객체 연결
     console.error(err);
   });
 
@@ -86,7 +87,7 @@ app.use(session({
 //인수로 세션에 대한 설정을 받음.
 
 
-app.use(passport.initialize());
+app.use(passport.initialize()); //passport는 npm i passport
 app.use(passport.session());
 
 app.use('/', pageRouter); //pageRouter를 씀. 주소가 인덱스 "/"일 경우 pageRouter가 처리. //page의 '/'와 get의 '/'이 합쳐져 GET /라우터가 되었음.
